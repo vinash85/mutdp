@@ -20,10 +20,10 @@ using namespace std;
 class MUTDP
 {
 
-	vector<DP>	m_dp;			// bottom level DPs
+	//vector<DP>	m_dp;			// bottom level DPs
 
 	GenoHaploDB	*m_pData;		// pointer to data 
-	
+
 	/*double m_gamma;				// top level scale parameter*/
 
 
@@ -36,7 +36,7 @@ class MUTDP
 	vector<int>		m_traceDiff;
 
 	int		m_bAmbiguous;
-	
+
 	////////////// I/O /////////////
 	FILE	*m_pFPTheta;
 	string	m_strOutdir;
@@ -59,10 +59,38 @@ public:
 	int		m_nBurninIteration;
 	int		m_nCumIteration;
 	int		m_nThining;
-	
+
 	// flags 
 	int		m_doConparam;
 	int		m_bCheckConvg;
+
+
+	//******ADDED FROM DP ******//
+
+	double			m_alpha;			// scale parameter
+
+	// ss
+	vector<int>		m_NumClassN;				// n(k): Number of descendant from each ancestor
+	//keeps track of difference and similarities between ancestor and haplotypes belonging to that ancestor
+	vector<vector<int> >	m_NumClassL;		// l(t,k)
+	//la[0] is count of number of haplotype belonging to class k have 0 at that position t .
+	//la[1] is count of number of haplotype belonging to class k have 1 at that position t .
+	vector<vector<int> >	m_NumClassLA[2];	// la(t,k)
+
+	vector<int>		m_pDataIndex;		//
+	int				m_NumClassU[3];
+
+	///avinash
+
+	vector<vector<unsigned char> >	m_A;	// ancestral haplotypes
+	int		**m_EqClass;		// individual haplotypes
+
+	vector<vector<unsigned char> >	m_Buffer_A;
+	vector<bool>	m_Remove_Class;
+
+	//******ADDED FROM DP ENDS******//
+
+
 
 	///////////////////////////////////////////////////////
 	///		wrapper function for block-wise hap inference
@@ -74,16 +102,16 @@ public:
 	///		internal functions to do hap inf iterations 
 	int		Init( GenoHaploDB *pDB, int nstart, int nend );
 	int		Initialize(haplo2_t h0, int I, int T, 
-				int offset = 0, bool bCopyShiftedRand = 0 );
+			int offset = 0, bool bCopyShiftedRand = 0 );
 	int		Initialize( GenoHaploDB *pDB, int nstart, int nend );
 	int		Iterate_det_Gibbs_Met( int numIter, bool* bDone = 0 );
 	int		Iterate_cum_Gibbs_Met( int numIter, bool* bDone = 0 );
-			// do prediction 
+	// do prediction
 	int		Sample_Pred();
-	
+
 	/////	internal functions for hap inf 
 	vector<unsigned char> Sample_A( int cc, vector<DP> &dp, 
-				unsigned char *h, bool new_class );
+			unsigned char *h, bool new_class );
 	int		Sample_H( unsigned char *h, unsigned char *h1, 
 			unsigned char *g0, unsigned char *g1,
 			vector<unsigned char> &ak, 
@@ -92,16 +120,16 @@ public:
 			int *h_count, 
 			int *u, int Ij );	
 	int		Sample_EqClass(  unsigned char *h, vector<int> &m, vector<vector<int> > &l, 
-				double alpha0);//, bool *FromTopLevel );
+			double alpha0);//, bool *FromTopLevel );
 	int		Sample_EqClass_Init(  unsigned char *h, vector<int> &m, vector<vector<int> > &l, 
-				double alpha0);//, bool *FromTopLevel );
+			double alpha0);//, bool *FromTopLevel );
 	int		Sample_Conparam( int numiter_a, int numiter_b  ) ;
 	bool	TestAcceptance(int old_c, int new_c, unsigned char *h, 
 			vector<unsigned char> &old_a, vector<unsigned char> &temp_a, 
 			vector<int> &m, vector<vector<int> > &l );
 
 	int		EstimateTheta( int iter  );
-	
+
 	// util functions 
 	int		MergeList();
 	int		CondenseList( int bBackupA = 0);
@@ -115,28 +143,28 @@ public:
 
 	int				clearSS();
 	void			SetRange( int bs, int be ) 
-						{ m_nBlockStart = bs; m_nBlockEnd = be; m_nBlockLength = be - bs; }
+	{ m_nBlockStart = bs; m_nBlockEnd = be; m_nBlockLength = be - bs; }
 	double			GetGamma()	{ return	m_gamma; }
 	void			SetGamma(double gg)	{ m_gamma = gg; }
 	GenoHaploDB	*	GetData()	{ return	m_pData; }
 	void			SetData( GenoHaploDB *pDB )	{ m_pData = pDB; }
 	vector<int>		&GetSumClassN() { return m_nSumClassN; }
-	
+
 	int		Swap( unsigned char *h1, unsigned char *h2, int nstart, int nend );
 	int		Find( unsigned char *h, vector<vector<unsigned char> > &A,
-				int exceptK = -1 );
+			int exceptK = -1 );
 
 	int		GetPredFreq(  unsigned char ***h );
-	
+
 	int		LoadData( vector<string> &filelist );
 	int		LoadOutput( const char *inputfile, int nstart, int nend,
-				unsigned char*** pred_h );
+			unsigned char*** pred_h );
 	int		Save( const char *inputfile, const char *outdir, int tstart, int tend );
 
 	HDP();
 	~HDP();
 
-	
+
 private: // for internal usage
 	float	ab_h;   // = beta_h + alpha_h;
 	float	a1;		// = ( alpha_h ) / (ab_h );
@@ -181,7 +209,7 @@ private: // for internal usage
 	vector<int>	old_la0k, temp_la0k;
 	vector<int>	old_la1k, temp_la1k;
 	vector<int>	old_lk, temp_lk;
-	
+
 };
 
 #endif // !defined(AFX_HDP_H__B8C60B76_E5B0_4C89_B1A4_86D1ABBF602C__INCLUDED_)
