@@ -29,7 +29,6 @@ class MUTDP
 
 	// ss 
 	/*vector<int>		m_NumClassN;*/
-	/*vector<int>		m_nSumClassN;*/
 	/*vector<bool>	m_Remove_Class;*/
 
 	// for convergence check
@@ -41,6 +40,22 @@ class MUTDP
 	FILE	*m_pFPTheta;
 	string	m_strOutdir;
 	string	m_strFilename;
+	//******ADDED FROM DP ******//
+
+	double			m_alpha;			// scale parameter
+	vector<int>		m_nSumClassN;
+
+	// ss
+	vector<int>		m_NumClassN;				// n(k): Number of descendant from each ancestor
+	//keeps track of difference and similarities between ancestor and haplotypes belonging to that ancestor
+	vector<vector<int> >	m_NumClassL;		// l(t,k)
+	//la[0] is count of number of haplotype belonging to class k have 0 at that position t .
+	//la[1] is count of number of haplotype belonging to class k have 1 at that position t .
+	vector<vector<int> >	m_NumClassLA[2];	// la(t,k)
+
+	vector<int>		m_pDataIndex;		//
+	int				m_NumClassU[3];
+
 
 public:
 	// random variables to sample 
@@ -64,21 +79,6 @@ public:
 	int		m_doConparam;
 	int		m_bCheckConvg;
 
-
-	//******ADDED FROM DP ******//
-
-	double			m_alpha;			// scale parameter
-
-	// ss
-	vector<int>		m_NumClassN;				// n(k): Number of descendant from each ancestor
-	//keeps track of difference and similarities between ancestor and haplotypes belonging to that ancestor
-	vector<vector<int> >	m_NumClassL;		// l(t,k)
-	//la[0] is count of number of haplotype belonging to class k have 0 at that position t .
-	//la[1] is count of number of haplotype belonging to class k have 1 at that position t .
-	vector<vector<int> >	m_NumClassLA[2];	// la(t,k)
-
-	vector<int>		m_pDataIndex;		//
-	int				m_NumClassU[3];
 
 	///avinash
 
@@ -161,8 +161,15 @@ public:
 			unsigned char*** pred_h );
 	int		Save( const char *inputfile, const char *outdir, int tstart, int tend );
 
-	HDP();
-	~HDP();
+//Added from DP
+	int AddClass( int val, int numT );
+	int DeleteClass();
+	int DeleteSS();
+	int LoadData( const char* filename );
+
+
+	MUTDP();
+	~MUTDP();
 
 
 private: // for internal usage
