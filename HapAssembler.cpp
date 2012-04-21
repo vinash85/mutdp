@@ -11,7 +11,7 @@
 
 #include "HapAssembler.h"
 #include "GenoHaploDB.h"
-#include "HDP.h"
+#include "MUTDP.h"
 //#include "HapDP.h"
 
 extern int normalize( vector<double> &vec );

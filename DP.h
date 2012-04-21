@@ -24,11 +24,22 @@ public:
 	vector<int>		m_NumClassN;				// n(k): Number of descendant from each ancestor
 	vector<vector<int> >	m_NumClassL;		// l(t,k)
 	vector<vector<int> >	m_NumClassLA[2];	// la(t,k)
-//la[0] is count of number of haplotype belonging to class k have 0 at that position t .	
-//la[1] is count of number of haplotype belonging to class k have 1 at that position t .	
+	//la[0] is count of number of haplotype belonging to class k have 0 at that position t .
+	//la[1] is count of number of haplotype belonging to class k have 1 at that position t .
 	vector<int>		m_pDataIndex;		// 
 
 	int				m_NumClassU[3];	
+
+
+	///avinash
+
+	vector<vector<unsigned char> >	m_A;	// ancestral haplotypes
+	int				**m_EqClass;		// individual haplotypes 
+
+	vector<vector<unsigned char> >	m_Buffer_A;
+	vector<bool>	m_Remove_Class;
+
+
 
 public:
 	int AddClass( int val, int numT );
