@@ -115,22 +115,17 @@ int MUTDP::Init( GenoHaploDB *pDB, int nstart, int nend )
     m_A.clear(); 
 
     ////////////////////////////////////////////////
-    //m_dp.clear();
 
     ////////////////////////////////////////////////
     // create DP: in case of known ethnic group variable
     //for ( jj = 0; jj < nGroups; jj++ )
     //{
-    //m_dp.push_back( *(new DP()) );
-    //}
-    //m_dp.push_back( *(new DP()) );
     //DP m_dp=new DP();
     // initialize DP ethnic groups
     //for ( jj = 0; jj < nGroups; jj++ )
     //{
     //m_dp[jj].m_pDataIndex = m_pData->m_DataInGroup[jj];
     //}
-    //TODO
     m_pDataIndex = m_pData->m_DataInGroup;
 
     int I = m_pData->m_numTotalI;
@@ -169,7 +164,7 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
     int	**g_miss2 = m_pData->m_g_miss2;
     int	***h_count = m_pData->m_h_count;
     vector<int> &n = m_NumClassN;
-    vector<int> &sum_mj = m_nSumClassN;
+    //vector<int> &sum_mj = m_nSumClassN;
 
     //clearSS();
     //m_A.clear();
@@ -181,18 +176,14 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
     double tmp_gamma = m_gamma;
     m_gamma = 1;
 
-    //m_dp.clear();
     ////////////////////////////////////////////////
     // create DP: in case of known ethnic group variable
     //for ( jj = 0; jj < nGroups; jj++ )
     //{
-    //m_dp.push_back( *(new DP()) );
     //}
     // initialize DP ethnic groups
     //for ( jj = 0; jj < nGroups; jj++ )
     //{
-    //m_dp[jj].m_pDataIndex = m_pData->m_DataInGroup[jj];
-    //m_dp[jj].AddClass( 0, numBlockT );
     //}
 
     //TODO
@@ -271,7 +262,6 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 	    vector<int>	*la = m_NumClassLA;
 	    int		*u	= m_NumClassU;
 
-	    //		double alpha0 = m_dp[jj].m_alpha;
 	    double alpha0 = 0.7;
 
 	    /// 1. Sample c(i,e)
@@ -311,7 +301,6 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 		la[ h[ee][ii][tt] ][cc][ tt-nstart ] ++;
 	    }
 
-	    // sample ancestor A TODO convert this into a local variable
 	    m_A[cc] = Sample_A( cc, h[ee][ii], new_class );
 
 	    K = m_A.size();
@@ -416,11 +405,11 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 		    BackupOldSS( old_c, remove_class );
 		    // in DeleteSS variables n[cc]--, la[h]--, l are backed up. This is done for gibbs sampling because for sampling of cc the contribution due to cc needs to be removed.
 
-		    DeleteSS( ii, ee, c[ii][ee] );
+		    DeleteSS( ii, ee, c[ii][ee]);
 
 		    old_lk = l[ old_c ];
 
-		    if ( sum_mj[ old_c ] == 0 )
+		    if ( n[ old_c ] == 0 )
 			remove_class[ old_c ] = 1;
 		    else
 			remove_class[ old_c ] = 0;
@@ -500,7 +489,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 		    vector<unsigned char> old_a = m_A[old_c];
 
 		    // sample ancestor A
-		    vector<unsigned char> temp_a = Sample_A( cc, m_dp, h[ee][ii], new_class );
+		    vector<unsigned char> temp_a = Sample_A( cc, h[ee][ii], new_class );
 
 		    // Metropolis test 
 		    bool test = TestAcceptance( old_c, cc, h[ee][ii], old_a, temp_a, n, l );
@@ -555,7 +544,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 
 	if ( iter % 100 == 0 )
 	{
-	    printf("%d	%.4f %.4f	%d\n", m_nthIter, m_dp[0].m_alpha, m_gamma,  K );
+	    printf("%d	%.4f %.4f	%d\n", m_nthIter, m_alpha, m_gamma,  K );
 	}
 
 	m_nthIter++;
@@ -584,7 +573,7 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
     int	**g_miss2 = m_pData->m_g_miss2;
     int	***h_count = m_pData->m_h_count;
     vector<int> &n = m_NumClassN;
-    vector<int> &sum_mj = m_nSumClassN;
+    //vector<int> &sum_mj = m_nSumClassN;
 
     int I = m_pData->m_numTotalI;
 
@@ -762,7 +751,7 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 
 		    /////////////////////////////
 		    // 2. Sample ancestor Ak
-		    vector<unsigned char> temp_a = Sample_A( cc, m_dp, h[ee][ii], new_class );
+		    vector<unsigned char> temp_a = Sample_A( cc, h[ee][ii], new_class );
 
 		    // Metropolis-Hasting test
 		    if ( TestAcceptance( old_c, cc, h[ee][ii], old_a, temp_a, n, l ) )
@@ -880,7 +869,7 @@ int MUTDP::MergeList()
 			bMapped[ka] = 1;
 
 			m_NumClassN[kk] += m_NumClassN[ka];
-			m_nSumClassN[kk] += m_nSumClassN[ka];
+			//m_nSumClassN[kk] += m_nSumClassN[ka];
 			for (tt=0; tt<m_nBlockLength; tt++)
 			{
 			    m_NumClassLA[0][kk][tt] += m_NumClassLA[0][ka][tt];
@@ -954,7 +943,7 @@ int MUTDP::CondenseList( int bBackupA )
 		m_Buffer_A.push_back( m_A[kk] );
 
 	    m_NumClassN.erase( m_NumClassN.begin()+kk );
-	    m_nSumClassN.erase( m_nSumClassN.begin()+kk );
+	    //m_nSumClassN.erase( m_nSumClassN.begin()+kk );
 	    m_A.erase( m_A.begin()+kk );
 
 	    //			m_Remove_Class.erase( m_Remove_Class.begin()+kk );
@@ -1131,12 +1120,12 @@ vector<unsigned char> MUTDP::Sample_A( int cc, unsigned char *h, bool new_class 
 		//
 		LA_all[bb] = m_NumClassLA[bb][cc][tt];
 
-		double LA_1 = m_nSumClassN[cc] - LA_all[bb];
+		double LA_1 = m_NumClassN[cc] - LA_all[bb];
 		//eqn:8
 
 		log_pA = lgamma( alpha_h + LA_all[bb] ) +
 		    lgamma( beta_h + LA_1 )
-		    - lgamma ( m_nSumClassN[cc] + ab_h ) - LA_1*logB1;
+		    - lgamma ( m_NumClassN[cc] + ab_h ) - LA_1*logB1;
 
 		pA.push_back( exp( log_pA ) );
 	    }
@@ -1339,7 +1328,6 @@ int MUTDP::Sample_EqClass(unsigned char *h,
 int MUTDP::clearSS()
 {
     m_NumClassN.clear();
-    m_nSumClassN.clear();
 
     return 1;
 }
@@ -1348,10 +1336,12 @@ int MUTDP::AddClass( int initvalue, int numT )
 {
     // initialize with 1 class
     m_NumClassN.push_back( initvalue );
-    m_nSumClassN.push_back( initvalue );
 
     vector<unsigned char> zeros( numT, 0 );
     m_A.push_back( zeros );
+    m_NumClassL.push_back( zeros );
+    m_NumClassLA[0].push_back( zeros );
+    m_NumClassLA[1].push_back( zeros );
 
     return 1;
 }
@@ -1363,7 +1353,8 @@ int MUTDP::DeleteSS( int ii, int ee, int cc)
 
     //global m_NumClassN is n_k , number of colors of ancestor
 
-    m_nSumClassN[ cc ] -= 1;
+    //m_nSumClassN[ cc ] -= 1;
+    m_NumClassN[ cc ] -= 1;
 
 
     for (int tt = 0; tt < m_nBlockLength; tt++)
@@ -1777,7 +1768,7 @@ int MUTDP::Save( const char *inputfile, const char *outdir, int tstart, int tend
     fprintf( fp, "ID	Frequency	%%	Haplotype\n" );
     for (kk=0; kk < K; kk++)
     {
-	fprintf( fp, "%d	%d	%.6f	", kk, m_nSumClassN[kk], m_nSumClassN[kk]/(float)(2*I) );
+	fprintf( fp, "%d	%d	%.6f	", kk, m_NumClassN[kk], m_NumClassN[kk]/(float)(2*I) );
 	for (tt = 0; tt< m_nBlockLength; tt++)
 	{
 	    fprintf( fp, "%d", m_A[kk][tt] );
@@ -1792,7 +1783,7 @@ int MUTDP::Save( const char *inputfile, const char *outdir, int tstart, int tend
 
 int MUTDP::Sample_Conparam( int numiter_a, int numiter_b  )
 {
-    int iter, jj, nd, zz, kk;
+    int iter, nd, zz, kk;
     double aa, bb, xx;
     double alpha, gamma;
 
@@ -1860,7 +1851,8 @@ int MUTDP::GetPredFreq( unsigned char*** h )
     int		m_bLigationStep = 1;
 
     m_A.clear();
-    m_nSumClassN.clear();
+    //m_nSumClassN.clear();
+    m_NumClassN.clear();
 
     int I = m_pData->m_numTotalI;
 
@@ -1869,10 +1861,6 @@ int MUTDP::GetPredFreq( unsigned char*** h )
 	m_pData->Alloc2DMemory( &m_EqClass, I, 2);
     }
 
-    for ( jj = 0; jj < m_dp.size(); jj++ )
-    {
-	m_dp[jj].m_NumClassN.clear();
-    }
 
     int		nstart = m_nBlockStart;
     int		nend = m_nBlockEnd;
@@ -1890,24 +1878,21 @@ int MUTDP::GetPredFreq( unsigned char*** h )
 		    hnew.push_back( h[ee][ii][nstart+tt] );
 
 		m_A.push_back( hnew );
-		m_nSumClassN.push_back(0);
+		m_NumClassN.push_back(0);
 		k = m_A.size() - 1;
-		for (jj=0; jj<m_dp.size(); jj++)
-		{
-		    m_dp[jj].m_NumClassN.push_back(0);
-		}
 	    }
 	    m_EqClass[ii][ee] = k;
-	    m_nSumClassN[k] += 1;
+	    //m_nSumClassN[k] += 1;
+	    //m_NumClassN[k] += 1;
 	    jj = m_pData->m_EthnicGroup[ii];
 	    //	to update the SS of each DP
-	    m_dp[jj].m_NumClassN[k] += 1;
 	}
     }
 
     return 1;
 }
 
+//find class k which is equal to H
 int MUTDP::Find( unsigned char *h, vector<vector<unsigned char> > &A,
 	int exceptK  )
 {
@@ -2136,13 +2121,10 @@ int MUTDP::Initialize( haplo2_t h0, int I, int T, int offset, bool cpShiftedRand
 	    ii = iivec[it];
 	    int K = m_NumClassN.size();
 
-	    jj = m_pData->m_EthnicGroup[ii];
-	    vector<int>		&m	= m_dp[jj].m_NumClassN;
-	    vector<vector<int> >	&l	= m_dp[jj].m_NumClassL;
-	    vector<vector<int> >	*la = m_dp[jj].m_NumClassLA;
-	    int				*u	= m_dp[jj].m_NumClassU;
+	    vector<vector<int> >	&l	= m_NumClassL;
+	    vector<vector<int> >	*la = m_NumClassLA;
+	    int				*u	= m_NumClassU;
 
-	    //		double alpha0 = m_dp[jj].m_alpha;
 	    double alpha0 = 0.7;
 
 	    /// 1. Sample c(i,e)
@@ -2163,13 +2145,6 @@ int MUTDP::Initialize( haplo2_t h0, int I, int T, int offset, bool cpShiftedRand
 		new_class = 1;
 		// add class
 		AddClass( 1, numBlockT );	// top-level
-		for ( int jt=0; jt < m_dp.size(); jt++ ) // bottom-level
-		{
-		    if ( jt == jj )
-			m_dp[jt].AddClass( 1, numBlockT );
-		    else
-			m_dp[jt].AddClass( 0, numBlockT );
-		}
 		K++;
 	    }
 
@@ -2180,7 +2155,7 @@ int MUTDP::Initialize( haplo2_t h0, int I, int T, int offset, bool cpShiftedRand
 	    }
 
 	    // 2. sample ancestor A_cc
-	    m_A[cc] = Sample_A( cc, m_dp, h[ee][ii], new_class );
+	    m_A[cc] = Sample_A( cc, h[ee][ii], new_class );
 
 	    K = m_A.size();
 
@@ -2332,7 +2307,6 @@ int MUTDP::EstimateTheta( int iter )
     int K = m_A.size();
     int  kk, tt;
 
-    int nGroup = m_dp.size();
     vector<int> &nn = m_NumClassN;;
     vector<vector<int> > ll = m_NumClassL;
     int T = ll[0].size();
@@ -2357,4 +2331,50 @@ int MUTDP::EstimateTheta( int iter )
 }
 
 
+int MUTDP::LoadData(const char *filename)
+{
+	int  t;
+	FILE *fp = fopen( filename, "r" );
+
+	char oneline[5000];
+	while ( !feof(fp) )
+	{
+		fgets( oneline, 5000, fp );
+		for (t=0; ;t++)
+		{
+
+		}
+
+	}
+
+
+	fclose(fp);
+	return 1;
+}
+
+
+int MUTDP::DeleteSS()
+{
+	m_NumClassN.clear();
+	m_NumClassL.clear();
+	m_NumClassLA[0].clear();
+	m_A.clear;
+	m_NumClassLA[1].clear();
+
+	return 1;
+}
+
+int MUTDP::DeleteClass()
+{
+	if ( m_NumClassN.size() > 0 )
+	{
+		m_NumClassN.pop_back();
+
+		m_NumClassL.pop_back();
+		m_NumClassLA[0].pop_back();
+		m_NumClassLA[1].pop_back();
+	}
+
+	return 1;
+}
 

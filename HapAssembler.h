@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 #include "GenoHaploDB.h"
-#include "HDP.h"
+#include "MUTDP.h"
 
 using namespace std;
 
@@ -31,7 +31,7 @@ class HapAssembler
 	vector<float**>					m_LocalFreq;
 
 public:
-	HDP*		m_pHaplo;
+	MUTDP*		m_pHaplo;
 
 	string				m_strOutdir;
 	GenoHaploDB*		m_pDB;
@@ -54,7 +54,7 @@ public:
 			int I, int T1, int T2, int nOverlap, 
 			unsigned char **hout[], haplo2_t hest = 0, int offset = 0 );
 
-	void	Initialize( GenoHaploDB* pDB, HDP* pHaplo ) 
+	void	Initialize( GenoHaploDB* pDB, MUTDP* pHaplo ) 
 				{ m_pDB = pDB; m_pHaplo = pHaplo; 	} ;
 
 	int SaveResult( char const* ofilename );	

@@ -24,7 +24,7 @@ class MUTDP
 
 	GenoHaploDB	*m_pData;		// pointer to data 
 
-	/*double m_gamma;				// top level scale parameter*/
+	double m_gamma;				// top level scale parameter
 
 
 	// ss 
@@ -162,7 +162,6 @@ public:
 	int		Save( const char *inputfile, const char *outdir, int tstart, int tend );
 
 //Added from DP
-	int AddClass( int val, int numT );
 	int DeleteClass();
 	int DeleteSS();
 	int LoadData( const char* filename );

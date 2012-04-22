@@ -16,7 +16,7 @@
 #define vbmkdir(x) mkdir(x,S_IRWXU|S_IRGRP|S_IXGRP )
 #endif 
 
-#include "HDP.h"
+#include "MUTDP.h"
 #include "HapAssembler.h"
 
 using namespace std;
@@ -206,7 +206,7 @@ int main( int argc, char *argv[] )
 
 	////////////////////////////////////////////////
 	////	create HDP instance to phase each block
-	HDP Haplo;
+	MUTDP Haplo;
 	Haplo.Init( &DB, 0, numT );
 		//Burning is transitory starting time of markov chain
 	if ( HAP_NUM_BURN_IN > 0 )
@@ -214,7 +214,7 @@ int main( int argc, char *argv[] )
 	if ( HAP_NUM_CUM > 0 )
 		Haplo.m_nCumIteration = HAP_NUM_CUM;
 	if ( HAP_THINING > 0 )
-		Haplo.m_nThining = HAP_THINING;
+	    Haplo.m_nThining = HAP_THINING;
 	if (  HAP_CONPARAM > 0 )
 		Haplo.m_doConparam = HAP_CONPARAM;
 	if (  HAP_CONVCHECK > 0 )
