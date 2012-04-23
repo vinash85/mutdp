@@ -96,6 +96,7 @@ int GenoHaploDB::LoadData( vector<string> &filelist )
 
 		for (t=0; t<numT; t++)
 		{
+		//TODO not sure what is happening here, both are same
 		    if ( m_TrueHaplotypes[0][i+iIndex][t] <= m_TrueHaplotypes[0][i+iIndex][t] )
 		    {
 			m_Genotypes[0][i+iIndex][t] =  m_TrueHaplotypes[0][i+iIndex][t]; //+ 1;

@@ -1389,6 +1389,7 @@ bool MUTDP::TestAcceptance( int old_c, int new_c, unsigned char *h,
     // posterior likelihood of h(:,i,e)
     for (int tt = 0; tt < m_nBlockLength; tt++)
     {
+	printf("n[old_c] %d l[old_c][tt]  %d\n", n[old_c], l[old_c][tt]);
 	assert( n[old_c] >= l[old_c][tt] );
 
 	if ( old_a[tt] == h[tt+m_nBlockStart] )

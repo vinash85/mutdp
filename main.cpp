@@ -239,6 +239,7 @@ int main( int argc, char *argv[] )
 	///////////////////////////////////////
 	///		1. Block-wise inference  using HDP haplotyper (Partition)
 	///////////////////////////////////////
+	//TODO change this numBlcoks = 1
 	for ( int nb = 0; nb < numBlocks; nb++ )
 	{
 		nend = MIN( ( nb + 1 ) * HAP_BL_LENGTH, numT );
