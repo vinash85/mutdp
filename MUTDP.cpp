@@ -126,7 +126,7 @@ int MUTDP::Init( GenoHaploDB *pDB, int nstart, int nend )
     //{
     //m_dp[jj].m_pDataIndex = m_pData->m_DataInGroup[jj];
     //}
-    m_pDataIndex = m_pData->m_DataInGroup;
+    //m_pDataIndex = m_pData->m_DataInGroup;
 
     int I = m_pData->m_numTotalI;
 
@@ -187,7 +187,7 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
     //}
 
     //TODO
-    m_pDataIndex = m_pData->m_DataInGroup;
+    //m_pDataIndex = m_pData->m_DataInGroup;
     int I = m_pData->m_numTotalI;
 
     if ( m_EqClass == 0 )

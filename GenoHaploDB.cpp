@@ -37,7 +37,7 @@ int GenoHaploDB::LoadData( vector<string> &filelist )
 
     m_nGroups = nfile;
     m_numTotalI = 0;
-    m_DataInGroup = 0;
+    //m_DataInGroup = 0;
 
     int	numI, numT;
     for (j=0; j < nfile; j++)
@@ -155,7 +155,7 @@ int GenoHaploDB::LoadData( vector<string> &filelist )
 	//for (i = 0; i < numI; i++)
 	//{
 	//m_DataInGroup[j].push_back(i+iIndex);
-	    m_DataInGroup = &numI;
+	    //m_DataInGroup = &numI;
 	    //m_EthnicGroup[i+iIndex] = j;
 	    //}
 	iIndex += numI;
@@ -198,7 +198,7 @@ int GenoHaploDB::AllocMemory(int numI, int numT)
     memset( m_EthnicGroup, 0, sizeof(int)*numI );
 
     //m_DataInGroup = new vector<int>[m_nGroups];
-    m_DataInGroup = 0;
+    //m_DataInGroup = 0;
 
     Alloc2DMemory( &m_FromTopLevel, m_numTotalI, 2);
     Alloc2DMemory( &m_h_count[0], m_numTotalI, numT);

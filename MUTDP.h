@@ -52,7 +52,7 @@ class MUTDP
 	//la[1] is count of number of haplotype belonging to class k have 1 at that position t .
 	vector<vector<int> >	m_NumClassLA[2];	// la(t,k)
 
-	vector<int>		m_pDataIndex;		//
+	//vector<int>		m_pDataIndex;		//
 	int				m_NumClassU[3];
 
 
