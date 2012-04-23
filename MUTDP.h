@@ -12,7 +12,6 @@
 #include <vector>
 #include <memory.h>
 #include "program.h"
-#include "DP.h"
 #include "GenoHaploDB.h"
 
 using namespace std;
@@ -110,23 +109,22 @@ public:
 	int		Sample_Pred();
 
 	/////	internal functions for hap inf 
-	vector<unsigned char> Sample_A( int cc, vector<DP> &dp, 
-			unsigned char *h, bool new_class );
+	vector<unsigned char> Sample_A( int cc, unsigned char *h, bool new_class );
 	int		Sample_H( unsigned char *h, unsigned char *h1, 
 			unsigned char *g0, unsigned char *g1,
 			vector<unsigned char> &ak, 
 			int	*g_match_i, int *g_miss1, int *g_miss2,
-			int mk, vector<int> &lk, vector<int> &lak0, vector<int> &lak1, 
+			int nk, vector<int> &lk, vector<int> &lak0, vector<int> &lak1, 
 			int *h_count, 
-			int *u, int Ij );	
-	int		Sample_EqClass(  unsigned char *h, vector<int> &m, vector<vector<int> > &l, 
+			int *u, int I );	
+	int		Sample_EqClass(  unsigned char *h,  vector<vector<int> > &l, 
 			double alpha0);//, bool *FromTopLevel );
-	int		Sample_EqClass_Init(  unsigned char *h, vector<int> &m, vector<vector<int> > &l, 
+	int		Sample_EqClass_Init(  unsigned char *h, vector<vector<int> > &l, 
 			double alpha0);//, bool *FromTopLevel );
 	int		Sample_Conparam( int numiter_a, int numiter_b  ) ;
 	bool	TestAcceptance(int old_c, int new_c, unsigned char *h, 
 			vector<unsigned char> &old_a, vector<unsigned char> &temp_a, 
-			vector<int> &m, vector<vector<int> > &l );
+			vector<int> &n, vector<vector<int> > &l );
 
 	int		EstimateTheta( int iter  );
 
@@ -134,11 +132,11 @@ public:
 	int		MergeList();
 	int		CondenseList( int bBackupA = 0);
 	int		ResetCumH();
-	int		CalNumClassU( vector<DP> &dp );
-	int		BackupOldSS( int old_c, int jj, vector<bool> &remove_class );
-	int		BackupUpdateSS( int new_c, int jj, vector<bool> &remove_class, bool classAdded );
-	int		DeleteSS( int jj, int ii, int ee, int cc );
-	int		RollBack( int ii, int ee, int jj, int old_c, int new_c );
+	int		CalNumClassU();
+	int		BackupOldSS( int old_c, vector<bool> &remove_class );
+	int		BackupUpdateSS( int new_c,vector<bool> &remove_class, bool classAdded );
+	int		DeleteSS( int ii, int ee, int cc );
+	int		RollBack( int ii, int ee,  int old_c, int new_c );
 	int		AddClass( int initvalue, int numT );
 
 	int				clearSS();

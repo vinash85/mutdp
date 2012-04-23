@@ -36,7 +36,7 @@ public:
 	
 	unsigned char	**m_Genotypes[2];
 	
-	vector<int>		*m_DataInGroup;
+	vector<int>		m_DataInGroup;
 	vector<int>		m_numI;
 
 

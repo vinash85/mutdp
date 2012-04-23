@@ -258,8 +258,8 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 	    int K = m_NumClassN.size();
 
 	    //int		&m	= m_NumClassN;
-	    vector<int> 	&l	= m_NumClassL;
-	    vector<int>	*la = m_NumClassLA;
+	    vector<vector<int> > 	&l	= m_NumClassL;
+	    vector<vector<int> >	*la = m_NumClassLA;
 	    int		*u	= m_NumClassU;
 
 	    double alpha0 = 0.7;
@@ -389,7 +389,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 		    K = m_NumClassN.size();
 
 		    // Ethinic Group selection
-		    jj = m_pData->m_EthnicGroup[ii];
+		    //jj = m_pData->m_EthnicGroup[ii];
 
 		    //vector<int>				&m	= m_dp[jj].m_NumClassN;
 		    vector<vector<int> >	&l	= m_NumClassL;
@@ -455,7 +455,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 
 			    c[ii][ee] = cc;
 			    remove_class[ cc  ] = 0;
-			    m[ cc ] = 1;
+			    n[ cc ] = 1;
 			    //sum_mj[ cc ] = 1;
 			    n[ cc ] = 1;
 
@@ -519,7 +519,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 		    Sample_H( h[ee][ii], h[1-ee][ii],
 			    g[0][ii], g[1][ii], m_A[cc],
 			    g_match[ii], g_miss1[ii], g_miss2[ii],
-			    m[cc], l[cc], la[0][cc], la[1][cc],
+			    n[cc], l[cc], la[0][cc], la[1][cc],
 			    h_count[ee][ii],
 			    u, I);
 		}
@@ -1176,12 +1176,12 @@ int MUTDP::CalNumClassU()
 
     int		*uj		= m_NumClassU;
     int		I	= m_pData->m_numTotalI;
-    vector<int>	&pIndex = m_pDataIndex;
+    //int	&pIndex = m_pDataIndex;
     uj[0] = uj[1] = uj[2] = 0;
 
-    for ( int it = 0; it < I; it++ )
+    for ( int ii = 0; ii < I; ii++ )
     {
-	ii = pIndex[it];
+	    //ii = pIndex[it];
 	for ( tt = m_nBlockStart; tt < m_nBlockEnd; tt++ )
 	{
 	    if ( g_match[ii][tt] == 1 )
@@ -1260,7 +1260,7 @@ int MUTDP::Sample_EqClass(unsigned char *h,
 		if ( m_A[kk][tt - m_nBlockStart] == h[tt] )
 		    log_pht = log( alpha_h + l[kk][tt-m_nBlockStart] ) - mc;
 		else
-		    log_pht = log( beta_h + m[kk] - l[kk][tt-m_nBlockStart] ) - mc1;
+		    log_pht = log( beta_h + n[kk] - l[kk][tt-m_nBlockStart] ) - mc1;
 		log_ph[kk] += log_pht;
 	    }
 	    log_ph_temp[kk] = log_ph[kk];
@@ -1337,8 +1337,9 @@ int MUTDP::AddClass( int initvalue, int numT )
     // initialize with 1 class
     m_NumClassN.push_back( initvalue );
 
-    vector<unsigned char> zeros( numT, 0 );
-    m_A.push_back( zeros );
+    vector<unsigned char> zeros1( numT, 0 );
+    m_A.push_back( zeros1 );
+    vector<int> zeros( numT, 0 );
     m_NumClassL.push_back( zeros );
     m_NumClassLA[0].push_back( zeros );
     m_NumClassLA[1].push_back( zeros );
@@ -1376,30 +1377,30 @@ bool MUTDP::TestAcceptance( int old_c, int new_c, unsigned char *h,
     //if ( old_c != new_c )
     //int test = 1;
 
-    double	mc = log( m[old_c] + ab_h );
+    double	mc = log( n[old_c] + ab_h );
     double	mc1 = mc + logB1;
 
     double	log_ph_old = 0;
     double	log_ph_new = 0;
 // m = number of descendent from each ancestor K
-    double	mc_n = log( m[new_c] + ab_h );
+    double	mc_n = log( n[new_c] + ab_h );
     double	mc1_n = mc_n + logB1;
 
     // posterior likelihood of h(:,i,e)
     for (int tt = 0; tt < m_nBlockLength; tt++)
     {
-	assert( m[old_c] >= l[old_c][tt] );
+	assert( n[old_c] >= l[old_c][tt] );
 
 	if ( old_a[tt] == h[tt+m_nBlockStart] )
 	    log_ph_old += log( alpha_h + l[old_c][tt] ) - mc;
 	else
-	    log_ph_old += log( beta_h + m[ old_c ] - l[old_c][tt] ) - mc1;
+	    log_ph_old += log( beta_h + n[ old_c ] - l[old_c][tt] ) - mc1;
 
-	assert( m[new_c] >= l[new_c][tt] );
+	assert( n[new_c] >= l[new_c][tt] );
 	if ( temp_a[tt] == h[tt+m_nBlockStart] )
 	    log_ph_new += log( alpha_h + l[old_c][tt] ) - mc;
 	else
-	    log_ph_new += log( beta_h + m[ old_c ] - l[old_c][tt] ) - mc1;
+	    log_ph_new += log( beta_h + n[ old_c ] - l[old_c][tt] ) - mc1;
     }
 
 
@@ -1796,7 +1797,8 @@ int MUTDP::Sample_Conparam( int numiter_a, int numiter_b  )
 	bb = alpha_b;
 	//for ( jj = 0 ; jj < J ; jj++ )
 	//{
-	    nd = m_pDataIndex.size();
+	    //nd = m_pDataIndex.size();
+	    nd =  m_pData->m_numTotalI;
 	    xx = randbeta( alpha + 1.0, nd );
 	    zz = ( drand48() * (alpha + nd) < nd );
 	    // numTable_jj:
@@ -2128,14 +2130,14 @@ int MUTDP::Initialize( haplo2_t h0, int I, int T, int offset, bool cpShiftedRand
 	    double alpha0 = 0.7;
 
 	    /// 1. Sample c(i,e)
-	    cc = Sample_EqClass_Init( h[ee][ii], m, l, alpha0)
+	    cc = Sample_EqClass_Init( h[ee][ii], l, alpha0);
 		//, &FromTopLevel[ii][ee] );
 
 		c[ii][ee] = cc;
 
 	    if ( cc < K )
 	    {
-		m[ cc ] ++;
+		n[ cc ] ++;
 		//sum_mj[ cc ] ++; //no need to do it.
 		new_class = 0;
 
@@ -2168,7 +2170,7 @@ int MUTDP::Initialize( haplo2_t h0, int I, int T, int offset, bool cpShiftedRand
 	    Sample_H( h[ee][ii], h[1-ee][ii],
 		    g[0][ii], g[1][ii], m_A[cc],
 		    g_match[ii], g_miss1[ii], g_miss2[ii],
-		    m[cc], l[cc], la[0][cc], la[1][cc],
+		    n[cc], l[cc], la[0][cc], la[1][cc],
 		    h_count[ee][ii],
 		    u, I);
 
@@ -2358,7 +2360,7 @@ int MUTDP::DeleteSS()
 	m_NumClassN.clear();
 	m_NumClassL.clear();
 	m_NumClassLA[0].clear();
-	m_A.clear;
+	m_A.clear();
 	m_NumClassLA[1].clear();
 
 	return 1;
