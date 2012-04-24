@@ -1,5 +1,5 @@
 
-CPP = g++
+CPP = g++ -g
 
 
 all: haploi  
