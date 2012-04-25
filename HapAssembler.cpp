@@ -313,7 +313,7 @@ int HapAssembler::LigateAdj(unsigned char **hl[], unsigned char **hr[],
 	
 	m_pHaplo->SetRange( 0, nT );
 	m_pHaplo->GetPredFreq( h0 );
-	float ent = GetEntropy( m_pHaplo->GetSumClassN() );
+	float ent = GetEntropy( m_pHaplo->GetNumClassN() );
 
 	if ( (ent > 2.5) && nT < 22 ) 
 	{
@@ -740,7 +740,7 @@ int HapAssembler::LoadAll( int tstart, int tend, int bLength,
 
 		m_pHaplo->SetRange( 0, bLength );
 		
-		float ee = GetEntropy( m_pHaplo->GetSumClassN() );
+		float ee = GetEntropy( m_pHaplo->GetNumClassN() );
 		m_BlockConfidence.push_back( ee );
 		if ( ee > maxee )
 			maxee = ee;

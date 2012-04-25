@@ -51,7 +51,6 @@ public:
 	int		**m_g_miss1;
 	int		**m_g_miss2;
 	int		**m_h_count[2];
-	bool	**m_FromTopLevel;
 
 	bool	m_bNoisyObservation;
 
