@@ -201,7 +201,6 @@ int GenoHaploDB::AllocMemory(int numI, int numT)
     //m_DataInGroup = new vector<int>[m_nGroups];
     //m_DataInGroup = 0;
 
-    Alloc2DMemory( &m_FromTopLevel, m_numTotalI, 2);
     Alloc2DMemory( &m_h_count[0], m_numTotalI, numT);
     Alloc2DMemory( &m_h_count[1], m_numTotalI, numT);
     Alloc2DMemory( &m_g_match, m_numTotalI, numT);

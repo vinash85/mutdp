@@ -42,7 +42,6 @@ class MUTDP
 	//******ADDED FROM DP ******//
 
 	double			m_alpha;			// scale parameter
-	vector<int>		m_nSumClassN;
 
 	// ss
 	vector<int>		m_NumClassN;				// n(k): Number of descendant from each ancestor
@@ -146,7 +145,7 @@ public:
 	void			SetGamma(double gg)	{ m_gamma = gg; }
 	GenoHaploDB	*	GetData()	{ return	m_pData; }
 	void			SetData( GenoHaploDB *pDB )	{ m_pData = pDB; }
-	vector<int>		&GetSumClassN() { return m_nSumClassN; }
+	vector<int>		&GetNumClassN() { return m_NumClassN; }
 
 	int		Swap( unsigned char *h1, unsigned char *h2, int nstart, int nend );
 	int		Find( unsigned char *h, vector<vector<unsigned char> > &A,

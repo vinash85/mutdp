@@ -16,7 +16,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-
+#define DEBUG  1
 MUTDP::MUTDP()
 {
     m_pData = 0;
@@ -166,13 +166,12 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
     vector<int> &n = m_NumClassN;
     //vector<int> &sum_mj = m_nSumClassN;
 
-    //clearSS();
-    //m_A.clear();
+    clearSS();
+    m_A.clear();
 
     // initialize with 1 class
     AddClass( 0, numBlockT );
 
-    //TODO
     double tmp_gamma = m_gamma;
     m_gamma = 1;
 
@@ -186,7 +185,6 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
     //{
     //}
 
-    //TODO
     //m_pDataIndex = m_pData->m_DataInGroup;
     int I = m_pData->m_numTotalI;
 
@@ -257,7 +255,6 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 	    ii = iivec[it];
 	    int K = m_NumClassN.size();
 
-	    //int		&m	= m_NumClassN;
 	    vector<vector<int> > 	&l	= m_NumClassL;
 	    vector<vector<int> >	*la = m_NumClassLA;
 	    int		*u	= m_NumClassU;
@@ -265,16 +262,15 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 	    double alpha0 = 0.7;
 
 	    /// 1. Sample c(i,e)
-	    //TODO remove FromTopLevel
 	    //avinash changed Sample_EqClass_Init to Sample_EqClass
 	    //cc = Sample_EqClass_Init( h[ee][ii], l, alpha0);
-	    cc = Sample_EqClass( h[ee][ii], l, alpha0);
+	    cout <<" c[ii][ee] "<<c[ii][ee] << " K " << K << " m_NumClassN[c[ii][ee]] "<<m_NumClassN[c[ii][ee]] <<endl; 
+	    cc = Sample_EqClass_Init( h[ee][ii], l, alpha0);
 
 	    c[ii][ee] = cc;
 
 	    if ( cc < K )
 	    {
-		//m[ cc ] ++;
 		n[ cc ] ++;
 		//sum_mj[ cc ] ++;
 		new_class = 0;
@@ -387,11 +383,10 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 		if ( !(bDone && bDone[ii]) )
 		{
 		    K = m_NumClassN.size();
-
+		    printf("K is %d\n", K);
 		    // Ethinic Group selection
 		    //jj = m_pData->m_EthnicGroup[ii];
 
-		    //vector<int>				&m	= m_dp[jj].m_NumClassN;
 		    vector<vector<int> >	&l	= m_NumClassL;
 		    vector<vector<int> >	*la = m_NumClassLA;
 		    int						*u	= m_NumClassU;
@@ -437,7 +432,10 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 			for ( tt = nstart; tt < nend; tt++)
 			{
 			    la[ h[ee][ii][tt] ][cc][tt-nstart]++;
+				cout << " n[old_c] " << n[old_c] << " l[old_c][tt] " << l[old_c][tt] << " old_c " << old_c << endl; 
+				assert( n[old_c] >= l[old_c][tt]-1 );
 			}
+			printf("I am in Else 3\n");
 		    }
 		    else
 		    {
@@ -454,9 +452,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 			    BackupUpdateSS( cc, remove_class, 0 );
 
 			    c[ii][ee] = cc;
-			    remove_class[ cc  ] = 0;
-			    n[ cc ] = 1;
-			    //sum_mj[ cc ] = 1;
+			    remove_class[ cc  ] = 0, cc, old_c;
 			    n[ cc ] = 1;
 
 			    for ( tt=0; tt < numBlockT; tt++)
@@ -466,6 +462,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 				la[ hh ][ cc ][tt] = 1;
 				la[1-hh][ cc ][tt] = 0;
 			    }
+			printf("I am in Else 1\n");
 			}
 			else
 			{
@@ -483,13 +480,33 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 			    }
 
 			    K++;
+			   printf("I am in Else 2\n");
 			}
 		    }
+		    printf("new_class %d, n %d  , cc %d , old_cc %d, n[old_c] %d\n", new_class, n[cc], cc, old_c, n[old_c]);
 
 		    vector<unsigned char> old_a = m_A[old_c];
 
 		    // sample ancestor A
 		    vector<unsigned char> temp_a = Sample_A( cc, h[ee][ii], new_class );
+			    for ( tt = nstart; tt < nend; tt++ ) {
+				    cout << " n[old_c] " << n[old_c] << " l[old_c][tt] " << l[old_c][tt] << " old_c " << old_c << endl; 
+				    assert( n[old_c] >= l[old_c][tt] -1);
+			    }
+
+		 if(DEBUG){
+		 	int iit = 0;
+		for (int ww=0 ; ww < I; ww++ ) 
+			for (int wwe=0 ; wwe < 2; wwe++ ) 
+				if (n[old_c] == 0)
+					if(m_EqClass[ww][wwe] == old_c)
+						cout << "Error old_c " << old_c << "ww: " << ww << "wwe: " << wwe<< endl;
+
+		 	for(iit = 0; iit < numBlockT; iit++ ){
+                 
+		 		printf("old_c %d l %d n %d iit %d numClassL %d \n", old_c, l[old_c][iit], n[old_c],iit,  m_NumClassL[old_c][iit]);
+		 	}
+		 }
 
 		    // Metropolis test 
 		    bool test = TestAcceptance( old_c, cc, h[ee][ii], old_a, temp_a, n, l );
@@ -506,6 +523,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 
 		    //
 		    cc = c[ii][ee];
+		    // removing the contribution of hie(t) from the la for gibbs sampling of hie(t)
 		    for (bb = 0; bb < B; bb++)
 		    {
 			for ( tt = nstart; tt < nend; tt++)
@@ -645,7 +663,6 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 		    // Ethinic Group selection
 		    //jj = m_pData->m_EthnicGroup[ii];
 
-		    vector<int>				&m	= m_NumClassN;
 		    vector<vector<int> >	&l	= m_NumClassL;
 		    vector<vector<int> >	*la = m_NumClassLA;
 		    int	*u = m_NumClassU;
@@ -661,7 +678,7 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 		    DeleteSS( ii, ee, c[ii][ee] );
 		    old_lk = l[ old_c ];
 
-		    if ( m[ old_c ] == 0 )
+		    if ( n[ old_c ] == 0 )
 			remove_class[ old_c ] = 1;
 		    else
 			remove_class[ old_c ] = 0;
@@ -710,8 +727,6 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 
 			    c[ii][ee] = cc;
 			    remove_class[ cc  ] = 0;
-			    //m[ cc ] = 1;
-			    //sum_mj[ cc ] = 1;
 			    n[ cc ] = 1;
 
 			    for ( tt=0; tt < numBlockT; tt++)
@@ -775,7 +790,7 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 		    // 3. sample Haplotype H(i,e)
 		    Sample_H( h[ee][ii], h[1-ee][ii],  g[0][ii], g[1][ii], m_A[cc],
 			    g_match[ii], g_miss1[ii], g_miss2[ii],
-			    m[cc], l[cc], la[0][cc], la[1][cc],
+			    n[cc], l[cc], la[0][cc], la[1][cc],
 			    h_count[ee][ii],
 			    u, I);
 		}
@@ -893,8 +908,8 @@ int MUTDP::MergeList()
 
 	}
 
-	return 1;
     }
+    return 1;
 }
 
 
@@ -1174,10 +1189,10 @@ int MUTDP::CalNumClassU()
 
     int nGroups = m_pData->m_nGroups;
 
-    int		*uj		= m_NumClassU;
+    int		*u		= m_NumClassU;
     int		I	= m_pData->m_numTotalI;
     //int	&pIndex = m_pDataIndex;
-    uj[0] = uj[1] = uj[2] = 0;
+    u[0] = u[1] = u[2] = 0;
 
     for ( int ii = 0; ii < I; ii++ )
     {
@@ -1185,13 +1200,18 @@ int MUTDP::CalNumClassU()
 	for ( tt = m_nBlockStart; tt < m_nBlockEnd; tt++ )
 	{
 	    if ( g_match[ii][tt] == 1 )
-		uj[0] ++;
+		u[0] ++;
 	    else if ( g_miss1[ii][tt] == 1 )
-		uj[1] ++;
+		u[1] ++;
 	    else if ( g_miss2[ii][tt] == 1 )
-		uj[2] ++;
+		u[2] ++;
 	}
     }
+    int sumU = u[0] + u[1] + u[2];
+    int blockSize = m_nBlockEnd - m_nBlockStart;
+    //printf("blockSize %d, sumU %d\n", blockSize, sumU)
+    //cout << "blockSize " << blockSize << " sumU " << sumU << endl;
+    assert(sumU == blockSize*I);
 }
 
 ///////////////////////////////////////////////////////
@@ -1201,8 +1221,7 @@ int MUTDP::CalNumClassU()
 //		FromTopLevel = whether the draw is from top or bottom urn
 //		@returns: which color is drawn Cie
 ///////////////////////////////////////////////////////
-//int MUTDP::Sample_EqClass( unsigned char *h, vector<int> &m,
-int MUTDP::Sample_EqClass_Init( unsigned char *h, 
+int MUTDP::Sample_EqClass( unsigned char *h, 
 	vector<vector<int> > &l, double alpha0)
 {
     int cc, kk;
@@ -1234,7 +1253,7 @@ int MUTDP::Sample_EqClass_Init( unsigned char *h,
 
 
 //int MUTDP::Sample_EqClass_Init(unsigned char *h,
-int MUTDP::Sample_EqClass(unsigned char *h,
+int MUTDP::Sample_EqClass_Init(unsigned char *h,
 	vector<vector<int> > &l, double alpha0)
 {
     int cc;
@@ -1285,7 +1304,6 @@ int MUTDP::Sample_EqClass(unsigned char *h,
 
     for ( kk = 0; kk < K; kk++)
     {
-	//DP_vec[kk] = m[kk] + alpha0 * n[kk]/(sumn + m_gamma);
 	DP_vec[kk] = n[kk];
     }
     DP_vec[K] = alpha0;
@@ -1307,8 +1325,10 @@ int MUTDP::Sample_EqClass(unsigned char *h,
     for ( kk = 0; kk < K+1; kk++ )
     {
 	double tmp = log_DP_predict[kk] - min_DP_predict;
+	//printf("tmp %f\n", tmp);
 	if ( tmp < -30 ) tmp = 0;
 	else	tmp = exp( tmp );
+	//printf("dp_predict %f\n", tmp);
 
 	DP_predict.push_back( tmp  );
     }
@@ -1382,15 +1402,14 @@ bool MUTDP::TestAcceptance( int old_c, int new_c, unsigned char *h,
 
     double	log_ph_old = 0;
     double	log_ph_new = 0;
-// m = number of descendent from each ancestor K
+// n = number of descendent from each ancestor K
     double	mc_n = log( n[new_c] + ab_h );
     double	mc1_n = mc_n + logB1;
 
     // posterior likelihood of h(:,i,e)
     for (int tt = 0; tt < m_nBlockLength; tt++)
     {
-	printf("n[old_c] %d l[old_c][tt]  %d\n", n[old_c], l[old_c][tt]);
-	assert( n[old_c] >= l[old_c][tt] );
+	assert( n[old_c] >= l[old_c][tt] -1);
 
 	if ( old_a[tt] == h[tt+m_nBlockStart] )
 	    log_ph_old += log( alpha_h + l[old_c][tt] ) - mc;
@@ -1465,12 +1484,7 @@ int MUTDP::RollBack( int ii, int ee, int old_c, int new_c )
     m_NumClassL[ old_c ] = old_lk;
 
     if ( m_bClassAdded )
-    {
-	m_NumClassN.pop_back();
-	m_Remove_Class.pop_back();
-	m_A.pop_back();
-
-    }
+	    DeleteClass();
     else if ( old_c != new_c )
     {
 	m_NumClassN[new_c] = temp_nk;
@@ -2356,27 +2370,27 @@ int MUTDP::LoadData(const char *filename)
 }
 
 
-int MUTDP::DeleteSS()
-{
-	m_NumClassN.clear();
-	m_NumClassL.clear();
-	m_NumClassLA[0].clear();
-	m_A.clear();
-	m_NumClassLA[1].clear();
+//int MUTDP::DeleteSS()
+//{
+	//m_NumClassN.clear();
+	//m_NumClassL.clear();
+	//m_NumClassLA[0].clear();
+	//m_A.clear();
+	//m_NumClassLA[1].clear();
 
-	return 1;
-}
+	//return 1;
+//}
 
 int MUTDP::DeleteClass()
 {
-	if ( m_NumClassN.size() > 0 )
-	{
-		m_NumClassN.pop_back();
+	assert ( m_NumClassN.size() > 0 );
+	m_NumClassN.pop_back();
+	m_Remove_Class.pop_back();
+	m_A.pop_back();
 
-		m_NumClassL.pop_back();
-		m_NumClassLA[0].pop_back();
-		m_NumClassLA[1].pop_back();
-	}
+	m_NumClassL.pop_back();
+	m_NumClassLA[0].pop_back();
+	m_NumClassLA[1].pop_back();
 
 	return 1;
 }
