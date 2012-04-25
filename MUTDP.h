@@ -162,6 +162,7 @@ public:
 	int DeleteClass();
 	int DeleteSS();
 	int LoadData( const char* filename );
+	void assertbug(int lineno);
 
 
 	MUTDP();

@@ -282,7 +282,8 @@ int main( int argc, char *argv[] )
 	
 	finish = clock();
 	
-	printf("Elapsed time: %.2f min\n", (double)(finish-start)/CLOCKS_PER_SEC/60.0 );
+//	printf("Elapsed time: %.2f min\n", (double)(finish-start)/CLOCKS_PER_SEC/60.0 );
+	printf("Elapsed time: %.2f min\n", (double)(finish-start)/1000/60.0 );
 
 	return 1;
 }

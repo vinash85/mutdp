@@ -56,7 +56,7 @@ int DP::DeleteSS()
 	m_NumClassN.clear();	
 	m_NumClassL.clear();
 	m_NumClassLA[0].clear(); 
-	m_A.clear;		
+	m_A.clear();		
 	m_NumClassLA[1].clear();
 	
 	return 1;
