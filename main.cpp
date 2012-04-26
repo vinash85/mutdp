@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 //#include <cstdlib.h>
@@ -35,6 +36,9 @@ int		HAP_CONVCHECK = -1;
 const char *HAP_INI_FILE;
 char *HAP_OUTDIR = 0;
 
+char * ANCESTOR_OUT = "output/m_A";
+void copyAncestor(MUTDP Haplo, int blockNum);
+int deleteFile(char *filename);
 
 ///////////////////////////////////////////
 /// parse argument
@@ -236,6 +240,9 @@ int main( int argc, char *argv[] )
 
 	
 	int		nstart, nend, nlength;
+
+	
+    	deleteFile(ANCESTOR_OUT);
 	///////////////////////////////////////
 	///		1. Block-wise inference  using HDP haplotyper (Partition)
 	///////////////////////////////////////
@@ -261,8 +268,8 @@ int main( int argc, char *argv[] )
 		DB.AllocHaplo2( phh, I, nlength );
 		DB.CopyHaplo( nstart, nend, phh );
 		arrData.push_back( *phh );
+		copyAncestor(Haplo, nb);
 	}
-	
 	///////////////////////////////////////////////
 	///////// 2. Ligation 
 	///////////////////////////////////////////////
@@ -287,3 +294,36 @@ int main( int argc, char *argv[] )
 
 	return 1;
 }
+
+void copyAncestor(MUTDP Haplo, int blockNum){
+    int totalAncestor = Haplo.m_A.size();
+    int nstart = Haplo.m_nBlockStart;
+    int nend = Haplo.m_nBlockEnd;
+
+
+    FILE * myfile = fopen(ANCESTOR_OUT, "a");
+    fprintf(myfile,  "# blockNum: %d K: %d\n", blockNum ,totalAncestor);
+    for(int k=0; k < totalAncestor; k++){
+	    for(int tt=0; tt < nend - nstart; tt++){
+		fprintf(myfile, "%u", Haplo.m_A[k][tt]); 
+	    }
+	    fprintf(myfile, "\n");	
+    }
+    fclose(myfile);
+}
+
+int deleteFile(char *filename){
+    ifstream fin(filename);
+    if (fin)
+    {
+        char cmd[50];
+        remove(filename);
+        fin.close();
+    }
+    else
+    {
+        cout << "Could not find file!" << endl;
+    }
+    return 0;
+}
+
