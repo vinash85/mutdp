@@ -8,7 +8,9 @@
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <cstdlib.h>
+
+
+#include <omp.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -37,8 +39,9 @@ const char *HAP_INI_FILE;
 char *HAP_OUTDIR = 0;
 
 char * ANCESTOR_OUT = "output/m_A";
-void copyAncestor(MUTDP Haplo, int blockNum);
+void copyAncestor(MUTDP Haplo, int blockNum, FILE *myfile);
 int deleteFile(char *filename);
+
 
 ///////////////////////////////////////////
 /// parse argument
@@ -243,10 +246,11 @@ int main( int argc, char *argv[] )
 
 	
     	deleteFile(ANCESTOR_OUT);
+	FILE * myfile = fopen(ANCESTOR_OUT, "w");
 	///////////////////////////////////////
 	///		1. Block-wise inference  using HDP haplotyper (Partition)
 	///////////////////////////////////////
-	//TODO change this numBlcoks = 1
+#pragma omp parallel for default(private) shared(DB) firstprivate(Haplo) 
 	for ( int nb = 0; nb < numBlocks; nb++ )
 	{
 		nend = MIN( ( nb + 1 ) * HAP_BL_LENGTH, numT );
@@ -264,12 +268,21 @@ int main( int argc, char *argv[] )
 		Haplo.Save( dbname.c_str(), outdir.c_str(), nstart, nend );
 
 		// add the blockwise result to the output array
+		copyAncestor(Haplo, nb, myfile);
+	}
+	fclose(myfile);
+
+
+	for ( int nb = 0; nb < numBlocks; nb++ )
+	{
+		nend = MIN( ( nb + 1 ) * HAP_BL_LENGTH, numT );
+		nstart = MAX( nend - HAP_BL_LENGTH, 0);
+		nlength = nend - nstart;
 		haplo2_t	*phh = new haplo2_t;
 		DB.AllocHaplo2( phh, I, nlength );
 		DB.CopyHaplo( nstart, nend, phh );
 		arrData.push_back( *phh );
-		copyAncestor(Haplo, nb);
-	}
+        }
 	///////////////////////////////////////////////
 	///////// 2. Ligation 
 	///////////////////////////////////////////////
@@ -292,16 +305,19 @@ int main( int argc, char *argv[] )
 //	printf("Elapsed time: %.2f min\n", (double)(finish-start)/CLOCKS_PER_SEC/60.0 );
 	printf("Elapsed time: %.2f min\n", (double)(finish-start)/1000/60.0 );
 
+#ifdef _OPENMP
+	wtime = omp_get_wtime()- wtime;
+	fprintf (stderr, "  Elapsed wall clock time (seconds) %f\n", wtime );
+	fflush(stderr);
+#endif
 	return 1;
 }
 
-void copyAncestor(MUTDP Haplo, int blockNum){
+void copyAncestor(MUTDP Haplo, int blockNum, FILE *myfile){
     int totalAncestor = Haplo.m_A.size();
     int nstart = Haplo.m_nBlockStart;
     int nend = Haplo.m_nBlockEnd;
 
-
-    FILE * myfile = fopen(ANCESTOR_OUT, "a");
     fprintf(myfile,  "# blockNum: %d K: %d\n", blockNum ,totalAncestor);
     for(int k=0; k < totalAncestor; k++){
 	    for(int tt=0; tt < nend - nstart; tt++){
@@ -309,7 +325,6 @@ void copyAncestor(MUTDP Haplo, int blockNum){
 	    }
 	    fprintf(myfile, "\n");	
     }
-    fclose(myfile);
 }
 
 int deleteFile(char *filename){

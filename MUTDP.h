@@ -22,17 +22,12 @@ class MUTDP
 	//vector<DP>	m_dp;			// bottom level DPs
 
 	GenoHaploDB	*m_pData;		// pointer to data 
-
 	double m_gamma;				// top level scale parameter
 
 
-	// ss 
-	/*vector<int>		m_NumClassN;*/
-	/*vector<bool>	m_Remove_Class;*/
 
 	// for convergence check
 	vector<int>		m_traceDiff;
-
 	int		m_bAmbiguous;
 
 	////////////// I/O /////////////
@@ -56,11 +51,6 @@ class MUTDP
 
 
 public:
-	// random variables to sample 
-	/*vector<vector<unsigned char> >	m_A;	// ancestral haplotypes*/
-	/*int				**m_EqClass;		// individual haplotypes */
-
-	/*vector<vector<unsigned char> >	m_Buffer_A;*/
 
 	// local block definition 
 	int		m_nBlockStart;		// block-starting SNP index 

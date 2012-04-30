@@ -1,5 +1,5 @@
-CPP = g++ -g
-
+#CPP = g++ -g -fopenmp
+CPP = /usr/local/stow/openmpi-1.2.6/bin/mpic++ -g
 
 all: haploi  
 
