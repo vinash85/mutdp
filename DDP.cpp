@@ -278,9 +278,6 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 	    double alpha0 = 0.7;
 
 	    /// 1. Sample c(i,e)
-	    //avinash changed Sample_EqClass_Init to Sample_EqClass
-	    //cc = Sample_EqClass_Init( h[ee][ii], l, alpha0);
-	    //cout <<" c[ii][ee] "<<c[ii][ee] << " K " << K << " m_NumClassN[c[ii][ee]] "<<m_NumClassN[c[ii][ee]] <<endl; 
 	    cc = Sample_EqClass_Init( h[ee][ii], l, alpha0);
 
 	    c[ii][ee] = cc;
@@ -425,11 +422,28 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 		    }
 		    else
 			remove_class[ old_c ] = 0;
-			
 		    //////////////////////////////////
 		    /// 1. Sample c(i,e)
 
-		    int cc = Sample_EqClass( h[ee][ii], l, alpha0);
+		    int cc = Sample_C( ); 
+		    
+		    c[jj] = cc;
+		    
+		    BackupUpdateUpperSS( cc);
+		    
+		    
+		    
+		   
+
+
+
+
+		    
+		    
+		    
+		    //////////////////////////////////
+		    /// 1. Sample c(i,e)
+		    Sample_EqClass( h[ee][ii], l, alpha0);
 
 		    c[ii][ee] = cc;
 
@@ -494,20 +508,15 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 
 			    K++;
 			}
-		    assertbug(497);
 		    }
-		    assertbug(499);
 
 		    vector<unsigned char> old_a = m_A[old_c];
 
 		    // sample ancestor A
-		    assertbug(503);
 		    vector<unsigned char> temp_a = Sample_A( cc, h[ee][ii], new_class );
 
 		    // Metropolis test
-		    assertbug(507);
 		    bool test = TestAcceptance( old_c, cc, h[ee][ii], old_a, temp_a, n, l );
-		    assertbug(509);
 
 		    if ( test )
 		    {
@@ -1235,7 +1244,7 @@ int MUTDP::Sample_EqClass( unsigned char *h,
     //this is proababilty of choosing old color.
     for (kk=0; kk < K; kk++)
     {
-	DP_vec.push_back( n[kk] + alpha0 );
+	DP_vec.push_back( n[kk]);
     }
     //this is proababilty of choosing new color //eqn:2
     DP_vec.push_back( alpha0 );
@@ -2443,7 +2452,7 @@ int MUTDP::Sample_C( unsigned char *b,
     return cc;
 }
 
-int MUTDP::Sample_C_Init(unsigned char *b,
+int MUTDP::Sample_C_Init(unsigned char *bj,
 	vector<vector<int> > &m, double alpha0)
 {
     int cc;
@@ -2466,7 +2475,7 @@ int MUTDP::Sample_C_Init(unsigned char *b,
 	    double log_pht;
 	    for (tt = m_nBlockStart; tt < m_nBlockEnd; tt++)
 	    {
-		if ( m_A[kk][tt - m_nBlockStart] == b[tt] )
+		if ( m_A[kk][tt - m_nBlockStart] == bj[tt] )
 		    log_pht = log( alpha_h + m[kk][tt-m_nBlockStart] ) - mc;
 		else
 		    log_pht = log( beta_h + q[kk] - m[kk][tt-m_nBlockStart] ) - mc1;
@@ -2565,7 +2574,9 @@ int MUTDP::Sample_C_Init(unsigned char *b,
 //
 // TODO remember to remove contribution of b from ss
 	// TODO change ealier B to bb
-// see the 
+// see the
+//
+// laj[0][tt] = \sum_i  I(h_it = 0) I(d_i =j)
 ///////////////////////////////////////////////////////
 int MUTDP::Sample_B( unsigned char *b,
 	unsigned char *h, 
@@ -2655,11 +2666,13 @@ int MUTDP::Sample_B( unsigned char *b,
     }
 
 
-    // TODO update the sufficient statistic here
+    // TODO update the sufficient statistic here and this would be done after
+    // testacceptance.
 
-    for(tt = 0; tt< numBlockT; tt++){
-	if (bk[tt]== m_A[cc][tt- m_nBlockStiart]) mk[tt] += 1;
-    }
+   //for(tt = 0; tt< numBlockT; tt++){
+	//if (bk[tt]== m_A[cc][tt- m_nBlockStart]) mk[tt] += 1;
+	//if (bk[tt]== hi[tt]) lj[tt] += 1;
+    //}
 	
     return 1;
 }
