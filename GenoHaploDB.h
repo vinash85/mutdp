@@ -27,25 +27,20 @@ public:
 	int	m_numT;
 	int	m_nMinT;
 	int	m_nMaxT;
-
 	int m_nTotHeteroSites ;
 	int m_nTotHeteroInd ;
-	
+
 	unsigned char	**m_TrueHaplotypes[2];
 	unsigned char	**m_RawGenotypes;
-	
 	unsigned char	**m_Genotypes[2];
-	
-	//vector<int>		m_DataInGroup;
 	vector<int>		m_numI;
 
 
 	// program variables
 	unsigned char	**m_Haplotypes[2];
-	int				**m_Cum_Haplotypes[B][2];
+	int		**m_Cum_Haplotypes[B][2];
 	unsigned char	**m_Pred_Haplotypes[2];
-
-	int				*m_EthnicGroup;		//
+	int		*m_EthnicGroup;		//
 
 	int		**m_g_match;
 	int		**m_g_miss1;

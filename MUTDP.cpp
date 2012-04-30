@@ -11,6 +11,7 @@
 #include "MUTDP.h"
 #include "util.h"
 #include "program.h"
+#include "omp.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -79,7 +80,7 @@ MUTDP::~MUTDP()
 
 int MUTDP::LoadData( vector<string> &filelist )
 {
-    int nfile = filelist.size();
+    //int nfile = filelist.size();
 
     if ( m_pData == 0)
 	m_pData = new GenoHaploDB();
@@ -97,8 +98,8 @@ int MUTDP::LoadData( vector<string> &filelist )
 ////////// initialize haplotypes and counts ///////////
 int MUTDP::Init( GenoHaploDB *pDB, int nstart, int nend )
 {
-    int		jj;
-    int		nGroups = pDB->m_nGroups;
+    //int		jj;
+    //int		nGroups = pDB->m_nGroups;
 
     assert( nstart < nend );
 
@@ -112,7 +113,7 @@ int MUTDP::Init( GenoHaploDB *pDB, int nstart, int nend )
     m_nBlockLength = nend - nstart;
     m_nthIter = 0;
 
-    int		numBlockT = m_nBlockLength;
+    //int		numBlockT = m_nBlockLength;
 
     //  constants
     ab_h = beta_h + alpha_h;
@@ -159,7 +160,7 @@ int MUTDP::Init( GenoHaploDB *pDB, int nstart, int nend )
 int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 {
     int		ii, tt, ee, it, cc;
-    int		nGroups = pDB->m_nGroups;
+    //int		nGroups = pDB->m_nGroups;
     bool	new_class;
 
     assert( nstart < nend );
@@ -346,9 +347,9 @@ int MUTDP::Initialize( GenoHaploDB *pDB, int nstart, int nend )
 int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 {
     int		ii,tt, ee, it, kk, bb;
-    int		nGroups = m_pData->m_nGroups;
+    //int		nGroups = m_pData->m_nGroups;
     bool	new_class;
-    float	ErrT=0, ErrI=0, ErrSW=0;
+    //float	ErrT=0, ErrI=0, ErrSW=0;
     int		nstart = m_nBlockStart;
     int		nend = m_nBlockEnd;
     int		numBlockT = m_nBlockLength;
@@ -466,7 +467,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 			    BackupUpdateSS( cc, remove_class, 0 );
 
 			    c[ii][ee] = cc;
-			    remove_class[ cc  ] = 0, cc, old_c;
+			    remove_class[ cc  ] = 0;
 			    n[ cc ] = 1;
 
 			    for ( tt=0; tt < numBlockT; tt++)
@@ -494,20 +495,15 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 
 			    K++;
 			}
-		    assertbug(497);
 		    }
-		    assertbug(499);
 
 		    vector<unsigned char> old_a = m_A[old_c];
 
 		    // sample ancestor A
-		    assertbug(503);
 		    vector<unsigned char> temp_a = Sample_A( cc, h[ee][ii], new_class );
 
 		    // Metropolis test
-		    assertbug(507);
 		    bool test = TestAcceptance( old_c, cc, h[ee][ii], old_a, temp_a, n, l );
-		    assertbug(509);
 
 		    if ( test )
 		    {
@@ -574,7 +570,7 @@ int MUTDP::Iterate_det_Gibbs_Met( int numIter, bool* bDone )
 int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 {
     int		ii, tt, ee, it, kk;
-    int		nGroups = m_pData->m_nGroups;
+    //int		nGroups = m_pData->m_nGroups;
     bool	new_class;
 
     int		nstart = m_nBlockStart;
@@ -626,7 +622,7 @@ int MUTDP::Iterate_cum_Gibbs_Met( int numIter, bool* bDone )
 	}
 
     }
-    vector<int> &traceDiff = m_traceDiff;
+    //vector<int> &traceDiff = m_traceDiff;
 
     // iterate
     for ( int iter=0; iter < numIter; iter++ )
@@ -1005,13 +1001,13 @@ int MUTDP::Sample_H( unsigned char *h, unsigned char *h1,
 	int *u, int I)
 {
     int tt, bb;
-    int numBlockT = m_nBlockLength;
+    //int numBlockT = m_nBlockLength;
     int nstart = m_nBlockStart;
     int	nend = m_nBlockEnd;
     int minh, maxh, ming, maxg;
 
-    vector<int> &n = m_NumClassN;
-    int K = n.size();
+    //vector<int> &n = m_NumClassN;
+    //int K = n.size();
 
     double log_a2 = log(a2);
     double log_b2 = log(b2);
@@ -1177,14 +1173,14 @@ vector<unsigned char> MUTDP::Sample_A( int cc, unsigned char *h, bool new_class 
 
 int MUTDP::CalNumClassU()
 {
-    int ii, tt;
+    int tt;
     unsigned char ***h = m_pData->m_Haplotypes;
-    unsigned char ***g = m_pData->m_Genotypes;
+    //unsigned char ***g = m_pData->m_Genotypes;
     int		**g_match = m_pData->m_g_match;
     int		**g_miss1 = m_pData->m_g_miss1;
     int		**g_miss2 = m_pData->m_g_miss2;
 
-    int nGroups = m_pData->m_nGroups;
+    //int nGroups = m_pData->m_nGroups;
 
     int		*u		= m_NumClassU;
     int		I	= m_pData->m_numTotalI;
@@ -1406,8 +1402,8 @@ bool MUTDP::TestAcceptance( int old_c, int new_c, unsigned char *h,
     double	log_ph_old = 0;
     double	log_ph_new = 0;
 // n = number of descendent from each ancestor K
-    double	mc_n = log( n[new_c] + ab_h );
-    double	mc1_n = mc_n + logB1;
+    //double	mc_n = log( n[new_c] + ab_h );
+//    double	mc1_n = mc_n + logB1;
 
     // posterior likelihood of h(:,i,e)
     for (int tt = 0; tt < m_nBlockLength; tt++)
@@ -1521,8 +1517,8 @@ int MUTDP::Sample_Pred()
     pred_h[0] = m_pData->m_Pred_Haplotypes[0];
     pred_h[1] = m_pData->m_Pred_Haplotypes[1];
 
-    unsigned char ***h = m_pData->m_Haplotypes;
-    unsigned char ***h0 = m_pData->m_TrueHaplotypes;
+    //unsigned char ***h = m_pData->m_Haplotypes;
+    //unsigned char ***h0 = m_pData->m_TrueHaplotypes;
     unsigned char ***g = m_pData->m_Genotypes;
     unsigned char **g_raw = m_pData->m_RawGenotypes;
     int		 **cum_h[2][2];
@@ -1549,13 +1545,13 @@ int MUTDP::Sample_Pred()
 	}
     }
 
-    int ct3=0, cind = 0, mis1=0;
-    int hetI = 0;
+    //int ct3=0, cind = 0, mis1=0;
+    //int hetI = 0;
     for (ii=0 ; ii < I; ii++)
     {
-	int ct1 = 0;
-	int ct2 = 0;
-	int hetero = 0;
+	//int ct1 = 0;
+	//int ct2 = 0;
+	//int hetero = 0;
 
 	for (tt = nstart ; tt < nend ; tt++)
 	{
@@ -1868,7 +1864,7 @@ int MUTDP::GetPredFreq( unsigned char*** h )
 {
     int ii, ee, tt, k, jj;
 
-    int		m_bLigationStep = 1;
+    //int		m_bLigationStep = 1;
 
     m_A.clear();
     //m_nSumClassN.clear();
@@ -1922,7 +1918,7 @@ int MUTDP::Find( unsigned char *h, vector<vector<unsigned char> > &A,
     int		kk, tt;
     int		T = A[0].size();
     int		K = A.size();
-    int		found = 0;
+    //int		found = 0;
 
     for (kk=0; kk<K; kk++)
     {
@@ -1989,7 +1985,7 @@ int MUTDP::ResetCumH()
 int MUTDP::Initialize( haplo2_t h0, int I, int T, int offset, bool cpShiftedRand )
 {
     int		ii, tt, ee, it, cc;
-    int		nGroups = m_pData->m_nGroups;
+    //int		nGroups = m_pData->m_nGroups;
     bool	new_class;
 
     // Geno-Haplo data
